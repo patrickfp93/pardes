@@ -1,0 +1,18 @@
+[package]
+edition = "2021"
+name = "pardes"
+version = "0.0.1"
+authors = ["PFP <patrickfp93@gmail.com>"]
+description = "A proc-macro capable of making a struct thread-safe."
+readme = "README.md"
+keywords = [
+    "lazy",
+    "async",
+    "thread-safe",
+    "macro",
+    "attribute",
+]
+license = "MIT"
+repository = "https://github.com/patrickfp93/warcrwlock"
+
+[dependencies]
