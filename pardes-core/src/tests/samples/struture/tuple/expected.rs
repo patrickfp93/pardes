@@ -1,69 +1,65 @@
-pub type SimpleStruct = simple_struct_expanse::SimpleStruct;
+use crate::tests::samples::struture::tuple::expected::tuple_expanse::Tuple;
 
-mod simple_struct_expanse {
-
+mod tuple_expanse {
     #[doc(hidden)]
     mod _core {
-        pub struct _Core {
-            pub field1: String,
-            //#[only_read]
-            pub field2: i32,
-        }
+        pub struct _Core(pub String, pub i32);
 
         impl std::fmt::Debug for _Core {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                f.debug_struct("SimpleStruct")
-                    .field("field1", &self.field1)
-                    .field("field2", &self.field2)
+                f.debug_tuple("Tuple")
+                    .field(&self.0)
+                    .field(&self.1)
                     .finish()
             }
         }
     }
 
-    pub struct SimpleStruct {
+    pub struct Tuple {
         _core: std::sync::Arc<std::sync::RwLock<_core::_Core>>,
     }
 
-    impl SimpleStruct {
-        pub(super) fn builder(field1: String, field2: i32) -> Self {
-            let core = _core::_Core { field1, field2 };
+    impl Tuple {
+        pub(super) fn builder(value: (String, i32)) -> Self {
+            let core = _core::_Core(value.0, value.1);
             Self {
                 _core: std::sync::Arc::new(std::sync::RwLock::new(core)),
             }
         }
 
-        pub(in super::super) fn field1(&self) -> guards::SimpleStructRefLock<'_, String> {
+        pub(in super::super) fn f0(&self) -> guards::TupleRefLock<'_, String> {
             let guard = self._core.read().unwrap();
-            guards::SimpleStructRefLock::new(&guard.field1 as *const String, guard)
+            guards::TupleRefLock::new(&guard.0 as *const String, guard)
         }
 
-        pub(in super::super) fn field1_mut(&self) -> guards::SimpleStructMutLock<'_, String> {
+        pub(in super::super) fn f0_mut(&self) -> guards::TupleMutLock<'_, String> {
             let mut guard = self._core.write().unwrap();
-            let value = &mut guard.field1 as *mut String;
-            return guards::SimpleStructMutLock::new(value, guard);
+            let value = &mut guard.0 as *mut String;
+            return guards::TupleMutLock::new(value, guard);
         }
 
-        pub fn field2(&self) -> guards::SimpleStructRefLock<'_, i32> {
+        pub fn f1(&self) -> guards::TupleRefLock<'_, i32> {
             let guard = self._core.read().unwrap();
-            guards::SimpleStructRefLock::new(&guard.field2 as *const i32, guard)
+            guards::TupleRefLock::new(&guard.1 as *const i32, guard)
         }
 
-        pub(super) fn field2_mut(&self) -> guards::SimpleStructMutLock<'_, i32> {
+        pub fn f1_mut(&self) -> guards::TupleMutLock<'_, i32> {
             let mut guard = self._core.write().unwrap();
-            let value = &mut guard.field2 as *mut i32;
-            return guards::SimpleStructMutLock::new(value, guard);
+            let value = &mut guard.1 as *mut i32;
+            return guards::TupleMutLock::new(value, guard);
         }
     }
 
-    impl std::fmt::Debug for SimpleStruct {
+    impl std::fmt::Debug for Tuple {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             (*self._core.read().unwrap()).fmt(f)
         }
     }
 
-    impl PartialEq for SimpleStruct {
+    impl PartialEq for Tuple {
         fn eq(&self, other: &Self) -> bool {
-            let ptr_number = self._core.as_ref() as *const std::sync::RwLock<_core::_Core> as usize;
+            let ptr_number =
+                self._core.as_ref() as *const std::sync::RwLock<_core::_Core> as usize;
             let other_ptr_number =
                 other._core.as_ref() as *const std::sync::RwLock<_core::_Core> as usize;
             ptr_number == other_ptr_number
@@ -71,12 +67,12 @@ mod simple_struct_expanse {
     }
 
     pub mod guards {
-        pub struct SimpleStructRefLock<'a, T> {
+        pub struct TupleRefLock<'a, T> {
             _guard: std::sync::RwLockReadGuard<'a, super::_core::_Core>,
             reference: &'a T,
         }
 
-        impl<'a, T> SimpleStructRefLock<'a, T> {
+        impl<'a, T> TupleRefLock<'a, T> {
             pub(super) fn new(
                 ptr: *const T,
                 guard: std::sync::RwLockReadGuard<'a, super::_core::_Core>,
@@ -89,7 +85,7 @@ mod simple_struct_expanse {
             }
         }
 
-        impl<'a, T> std::ops::Deref for SimpleStructRefLock<'a, T> {
+        impl<'a, T> std::ops::Deref for TupleRefLock<'a, T> {
             type Target = T;
 
             fn deref(&self) -> &Self::Target {
@@ -97,13 +93,13 @@ mod simple_struct_expanse {
             }
         }
 
-        pub struct SimpleStructMutLock<'a, T> {
+        pub struct TupleMutLock<'a, T> {
             _guard: std::sync::RwLockWriteGuard<'a, super::_core::_Core>,
             reference: &'a T,
             reference_mutable: &'a mut T,
         }
 
-        impl<'a, T> SimpleStructMutLock<'a, T> {
+        impl<'a, T> TupleMutLock<'a, T> {
             pub(super) fn new(
                 ptr: *mut T,
                 guard: std::sync::RwLockWriteGuard<'a, super::_core::_Core>,
@@ -118,7 +114,7 @@ mod simple_struct_expanse {
             }
         }
 
-        impl<'a, T> std::ops::Deref for SimpleStructMutLock<'a, T> {
+        impl<'a, T> std::ops::Deref for TupleMutLock<'a, T> {
             type Target = T;
 
             fn deref(&self) -> &Self::Target {
@@ -126,23 +122,20 @@ mod simple_struct_expanse {
             }
         }
 
-        impl<'a, T> std::ops::DerefMut for SimpleStructMutLock<'a, T> {
+        impl<'a, T> std::ops::DerefMut for TupleMutLock<'a, T> {
             fn deref_mut(&mut self) -> &mut Self::Target {
                 self.reference_mutable
             }
         }
     }
-
 }
 
-//user Edition
+impl Tuple {
+    pub fn new(value: (String, i32)) -> Self {
+        Self::builder(value)
+    }   
 
-impl SimpleStruct{
-    pub fn new(field1 : String, field2:i32 ) -> Self{
-        Self::builder(field1, field2)
-    }
-
-    pub fn sum_five(&mut self){
-        *self.field2_mut() += 5;
+    pub fn sum_five(&mut self) {
+        *self.f1_mut() += 5;
     }
 }

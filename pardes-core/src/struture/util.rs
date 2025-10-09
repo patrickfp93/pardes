@@ -11,20 +11,13 @@ pub fn get_ident_expanse_module(item_struct: &ItemStruct) -> Ident {
     parse_str(&format!("{}_{}", module_ident_string, EXPANSE_MODULE_NAME)).unwrap()
 }
 
-pub fn get_possible_named_field_idents(item_struct: &ItemStruct) -> Option<Vec<Field>> {
-    if let Fields::Named(fields_named) = &item_struct.fields {
-        Some(fields_named
-            .named
-            .iter()
-            .map(|f| {
-                f.clone()
-                /*let name = f.ident.as_ref().unwrap().to_string(); // nome do campo como string
-                let ident = &f.ident; // Ident para acessar self.nome
-                quote! { .field(#name, &self.#ident) }*/
-            })
-            .collect())
-    }else{
-        None
+pub fn get_possible_fields(item_struct: &ItemStruct) -> Option<Vec<Field>>{
+    match &item_struct.fields {
+        Fields::Named(fields_named) => Some(fields_named.named.iter().map(|f| f.clone()).collect()),
+        Fields::Unnamed(fields_unnamed) => {            
+            Some(fields_unnamed.unnamed.iter().map(|f| f.clone()).collect())
+        },
+        Fields::Unit => None,
     }
 }
 
