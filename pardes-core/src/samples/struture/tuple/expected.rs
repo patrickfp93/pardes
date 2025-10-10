@@ -1,10 +1,17 @@
-use crate::tests::samples::struture::tuple::expected::tuple_expanse::Tuple;
+use crate::samples::struture::tuple::expected::tuple_expanse::Tuple;
 
+#[allow(unused)]
+pub use tuple_expanse::*;
+#[seferize::stringify("TUPLE_EXPANSE_SAMPLE")]
 mod tuple_expanse {
+    #[seferize::ignore]#[allow(unused)]
+    pub use _core::*;
     #[doc(hidden)]
     mod _core {
+    #[seferize::stringify("TUPLE_CORE_SAMPLE")]
         pub struct _Core(pub String, pub i32);
 
+        #[seferize::stringify("TUPLE_IMPL_DEBUG_SAMPLE")]
         impl std::fmt::Debug for _Core {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 f.debug_tuple("Tuple")

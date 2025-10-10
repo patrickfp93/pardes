@@ -1,3 +1,4 @@
+#[seferize::stringify("SIMPLE_STRUCT_SAMPLE")]
 pub struct SimpleStruct {
     pub(super) field1: String,
     //#[only_read]

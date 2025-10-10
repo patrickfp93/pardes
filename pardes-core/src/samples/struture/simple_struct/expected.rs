@@ -1,15 +1,24 @@
+#[allow(unused)]
+pub use simple_struct_expanse::*;
+
 pub type SimpleStruct = simple_struct_expanse::SimpleStruct;
 
+#[seferize::stringify("SIMPLE_STRUCT_EXPANSE")]
 mod simple_struct_expanse {
 
+    #[seferize::ignore]#[allow(unused)]pub use _core::*;
+    
+    #[seferize::stringify("SIMPLE_STRUCT_CORE_MODULE_SAMPLE")]
     #[doc(hidden)]
     mod _core {
+        #[seferize::stringify("SIMPLE_STRUCT_CORE_SAMPLE")]
         pub struct _Core {
             pub field1: String,
             //#[only_read]
             pub field2: i32,
         }
 
+        #[seferize::stringify("SIMPLE_STRUCT_IMPL_DEBUG_SAMPLE")]
         impl std::fmt::Debug for _Core {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 f.debug_struct("SimpleStruct")

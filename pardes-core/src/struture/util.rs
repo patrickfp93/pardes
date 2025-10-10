@@ -1,9 +1,5 @@
-use std::default;
-
 use crate::struture::EXPANSE_MODULE_NAME;
 use convert_case::{Case, Casing};
-use proc_macro2::TokenStream;
-use quote::quote;
 use syn::{parse_str, Field, Fields, Ident, ItemStruct};
 
 pub fn get_ident_expanse_module(item_struct: &ItemStruct) -> Ident {

@@ -1,32 +1,22 @@
-use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{parse2, parse_quote, ItemImpl, ItemStruct};
+use syn::{parse2, parse_quote, parse_str, ItemImpl, ItemStruct};
+use crate::*;
 
 pub fn get_simple_struct_sample() -> ItemStruct {
-    let item_struct_token = quote! {
-            pub struct SimpleStruct {
-                pub(super) field1: String,
-                //#[only_read]
-                pub field2: i32,
-            }
-        };
-    parse2(item_struct_token).expect("Failed to parse for ItemStruct")
+    //let item_struct_token = parse_str(SIMPLE_STRUCT_SAMPLE).unwrap();
+    //parse2(item_struct_token).expect("Failed to parse for ItemStruct")
+    parse_str(SIMPLE_STRUCT_SAMPLE).unwrap()
 }
 
-pub fn get_debug_impl_core_from_struct_sample() -> ItemImpl{
-    parse_quote! {
-        impl std::fmt::Debug for _Core {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                f.debug_struct("SimpleStruct")
-                    .field("field1", &self.field1)
-                    .field("field2", &self.field2)
-                    .finish()
-            }
-        }
-    }
+pub fn get_simple_struct_impl_debug_sample() -> ItemImpl{
+    parse_str(SIMPLE_STRUCT_IMPL_DEBUG_SAMPLE).unwrap()
 }
 
-pub fn get_simple_tuple() -> ItemStruct {
+pub fn get_simple_struct_core_sample() -> ItemStruct{
+    parse_str(SIMPLE_STRUCT_CORE_SAMPLE).unwrap()
+}
+
+pub fn get_tuple_sample() -> ItemStruct {
     let item_struct_token = quote! {
             pub struct Tuple(pub(super) String, pub i32);
         };
@@ -43,5 +33,11 @@ pub fn get_debug_impl_core_from_tuple() -> ItemImpl{
                     .finish()
             }
         }
+    }
+}
+
+pub fn get_tuple_core() -> ItemStruct{
+    parse_quote!{
+        pub struct _Core(pub String, pub i32);
     }
 }

@@ -1,5 +1,6 @@
 #[cfg(test)]
-mod tests;
+pub(crate) mod tests;
+pub(crate) mod samples;
 pub mod struture;
 pub mod error{
     use crate::struture;
@@ -13,3 +14,6 @@ pub mod error{
 }
 
 pub type Result<T> = std::result::Result<T,error::PardesError>;
+
+#[allow(unused)]
+use crate::samples::struture::*;
