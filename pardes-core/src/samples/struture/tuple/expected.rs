@@ -6,10 +6,12 @@ pub use tuple_expanse::*;
 mod tuple_expanse {
     #[seferize::ignore]#[allow(unused)]
     pub use _core::*;
+    #[seferize::stringify("TUPLE_CORE_MODULE_SAMPLE")]
     #[doc(hidden)]
     mod _core {
     #[seferize::stringify("TUPLE_CORE_SAMPLE")]
-        pub struct _Core(pub String, pub i32);
+    #[allow (unused)]
+    pub struct _Core(pub String, pub i32);
 
         #[seferize::stringify("TUPLE_IMPL_DEBUG_SAMPLE")]
         impl std::fmt::Debug for _Core {
