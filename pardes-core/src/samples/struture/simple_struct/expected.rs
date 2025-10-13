@@ -1,13 +1,16 @@
 #[allow(unused)]
 pub use simple_struct_expanse::*;
 
+#[seferize::stringify("SIMPLE_STRUCT_TYPE_SAMPLE")]
 pub type SimpleStruct = simple_struct_expanse::SimpleStruct;
 
-#[seferize::stringify("SIMPLE_STRUCT_EXPANSE")]
+#[seferize::stringify("SIMPLE_STRUCT_EXPANSE_SAMPLE")]
 mod simple_struct_expanse {
 
-    #[seferize::ignore]#[allow(unused)]pub use _core::*;
-    
+    #[seferize::ignore]
+    #[allow(unused)]
+    pub use _core::*;
+
     #[seferize::stringify("SIMPLE_STRUCT_CORE_MODULE_SAMPLE")]
     #[doc(hidden)]
     mod _core {
@@ -29,10 +32,12 @@ mod simple_struct_expanse {
         }
     }
 
+    #[seferize::stringify("SIMPLE_STRUCT_WRAPPER_SAMPLE")]
     pub struct SimpleStruct {
         _core: std::sync::Arc<std::sync::RwLock<_core::_Core>>,
     }
 
+    #[seferize::stringify("SIMPLE_STRUCT_WRAPPER_IMPL_BUILDER_SAMPLE")]
     impl SimpleStruct {
         pub(super) fn builder(field1: String, field2: i32) -> Self {
             let core = _core::_Core { field1, field2 };
@@ -40,7 +45,10 @@ mod simple_struct_expanse {
                 _core: std::sync::Arc::new(std::sync::RwLock::new(core)),
             }
         }
+    }
 
+    #[seferize::stringify("SIMPLE_STRUCT_WRAPPER_IMPL_ACCESS_SAMPLE")]
+    impl SimpleStruct {
         pub(in super::super) fn field1(&self) -> guards::SimpleStructRefLock<'_, String> {
             let guard = self._core.read().unwrap();
             guards::SimpleStructRefLock::new(&guard.field1 as *const String, guard)
@@ -64,12 +72,14 @@ mod simple_struct_expanse {
         }
     }
 
+    #[seferize::stringify("SIMPLE_STRUCT_WRAPPER_IMPL_DEBUG_SAMPLE")]
     impl std::fmt::Debug for SimpleStruct {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             (*self._core.read().unwrap()).fmt(f)
         }
     }
 
+    #[seferize::stringify("SIMPLE_STRUCT_WRAPPER_IMPL_PARTIAL_EQ_SAMPLE")]
     impl PartialEq for SimpleStruct {
         fn eq(&self, other: &Self) -> bool {
             let ptr_number = self._core.as_ref() as *const std::sync::RwLock<_core::_Core> as usize;
@@ -79,6 +89,7 @@ mod simple_struct_expanse {
         }
     }
 
+    #[seferize::stringify("SIMPLE_STRUCT_GUARDS_MOD_SAMPLE")]
     pub mod guards {
         pub struct SimpleStructRefLock<'a, T> {
             _guard: std::sync::RwLockReadGuard<'a, super::_core::_Core>,
@@ -141,17 +152,16 @@ mod simple_struct_expanse {
             }
         }
     }
-
 }
 
 //user Edition
 
-impl SimpleStruct{
-    pub fn new(field1 : String, field2:i32 ) -> Self{
+impl SimpleStruct {
+    pub fn new(field1: String, field2: i32) -> Self {
         Self::builder(field1, field2)
     }
 
-    pub fn sum_five(&mut self){
+    pub fn sum_five(&mut self) {
         *self.field2_mut() += 5;
     }
 }
