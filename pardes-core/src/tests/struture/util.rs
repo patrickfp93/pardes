@@ -20,11 +20,11 @@ pub fn check_get_ident_expanse_module_method(
 }
 
 #[rstest]
-#[case::simple_struct(SIMPLE_STRUCT_SAMPLE, SIMPLE_STRUCT_TYPE_SAMPLE)]
-#[case::tuple(TUPLE_SAMPLE,TUPLE_TYPE_SAMPLE)]
+#[case::simple_struct(SIMPLE_STRUCT_SAMPLE, ["pub (super) field1 : String","pub field2 : i32"])]
+#[case::tuple(TUPLE_SAMPLE,["pub (super) String","pub i32"])]
 pub fn check_get_possible_field_method(
     #[case] item_struct_str: &'static str,
-    #[case] type_str: &'static str
+    #[case] fields:  [&'static str;2]
 ){
     use quote::ToTokens;
     let item_struct = parse_str(item_struct_str).unwrap();
@@ -32,9 +32,10 @@ pub fn check_get_possible_field_method(
     assert!(possible_named_fields.is_some());
     let named_fields = possible_named_fields.unwrap();
     assert_eq!(named_fields.len(), 2);
-    assert_eq!(named_fields[0].to_token_stream().to_string(), "pub (super) field1 : String");
-    assert_eq!(named_fields[1].to_token_stream().to_string(), "pub field2 : i32");
-}//melhorar sistema de test
+    fields.iter().enumerate().for_each(|(index,&field)|{
+        assert_eq!(named_fields[index].to_token_stream().to_string(), field);
+    });
+}
 
 pub trait ToStringItem {
     fn to_token_string(&self) -> String;
