@@ -10,7 +10,7 @@ use crate::struture::error::ErrorStruture;
 use crate::{Result, struture::normalizer::struct_core_normalizer};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::{Field, Ident, ItemImpl,ItemFn, ItemStruct, parse_quote, parse_str};
+use syn::{Field, Ident, ItemImpl,ItemFn, ItemStruct,Visibility, parse_quote, parse_str};
 const CORE_STRUCT_NAME: &'static str = "_Core";
 const EXPANSE_MODULE_NAME: &'static str = "expanse";
 

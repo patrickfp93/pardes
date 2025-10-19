@@ -1,3 +1,5 @@
+
+
 use super::*;
 
 pub fn generate_wrapper_struct(item_struct: &ItemStruct) -> ItemStruct {
@@ -11,10 +13,12 @@ pub fn generate_wrapper_struct(item_struct: &ItemStruct) -> ItemStruct {
 
 pub fn generate_wrapper_impl_access(item_struct: &ItemStruct, fields: &[Field]) -> ItemImpl {
     let ident = item_struct.ident.clone();
-    let access_fn: Vec<ItemFn> = fields.iter().map(|f| generate_access(f)).collect();
+    let read_acessor_fn: Vec<ItemFn> = fields.iter().enumerate().map(|(i,f)| generate_read_accessor(f,i)).collect();
+    let write_acessor_fn: Vec<ItemFn> = fields.iter().enumerate().map(|(i,f)| generate_write_accessor(f,i)).collect();
     parse_quote! {
         impl #ident{
-            #(#access_fn)*
+            #(#read_acessor_fn)*
+            #(#read_acessor_fn)*
         }
     }
 }
@@ -52,6 +56,61 @@ pub fn generate_wrapper_impl_builder(item_struct: &ItemStruct, fields: &[Field])
 
 
 
-fn generate_access(field: &Field) -> ItemFn {
-    todo!()
-}
+fn generate_read_accessor(field: &Field, index : usize) -> ItemFn {
+    let vis = escalate_visibility(&field.vis);
+    let ident: TokenStream = if let Some(ident) = field.ident.as_ref()
+    {
+        ident.to_token_stream()
+    }else{
+        parse_str(&format!("{}",index)).unwrap()
+    };
+    let ty = &field.ty;
+
+    parse_quote! {
+        #vis fn #ident(&self) -> guards::SimpleStructRefLock<'_, #ty> {
+            let guard = self._core.read().unwrap();
+            guards::SimpleStructRefLock::new(&guard.#ident as *const #ty, guard)
+        }
+    }
+}//precisa ser testado
+
+fn generate_write_accessor(field: &Field,index : usize) -> ItemFn {
+    let vis = escalate_visibility(&field.vis);
+    let ident: TokenStream = if let Some(ident) = field.ident.as_ref()
+    {
+        ident.to_token_stream()
+    }else{
+        parse_str(&format!("{}",index)).unwrap()
+    };
+    let ty = &field.ty;
+    let method_name : TokenStream = parse_str(&format!("{}_mut", ident)).unwrap();
+
+    parse_quote! {
+        #vis fn #method_name(&self) -> guards::SimpleStructMutLock<'_, #ty> {
+            let mut guard = self._core.write().unwrap();
+            let value = &mut guard.#ident as *mut #ty;
+            guards::SimpleStructMutLock::new(value, guard)
+        }
+    }
+}//precisa ser testado
+
+fn escalate_visibility(vis: &Visibility) -> Visibility {
+    match vis {
+        // Caso privado → sobe um nível (pai)
+        Visibility::Inherited => parse_quote!(pub(super)),
+
+        // pub(super) → sobe mais um nível
+        Visibility::Restricted(r) if r.in_token.is_none() && r.path.is_ident("super") => {
+            parse_quote!(pub(in super::super))
+        }
+
+        // pub(in some::path) → adiciona um `super::` no início
+        Visibility::Restricted(r) if r.in_token.is_some() => {
+            let path = &r.path;
+            parse_quote!(pub(in super::#path))
+        }
+
+        // Mantém visibilidade ampla
+        other => other.clone(),
+    }
+}//precisa ser testado

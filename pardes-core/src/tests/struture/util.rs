@@ -4,7 +4,6 @@ use rstest::rstest;
 use crate::struture::util::*;
 use super::*;
 
-
 #[rstest]
 #[case::simple_struct(SIMPLE_STRUCT_SAMPLE, "simple_struct_expanse")]
 #[case::tuple(TUPLE_SAMPLE,"tuple_expanse")]
@@ -20,8 +19,8 @@ pub fn check_get_ident_expanse_module_method(
 }
 
 #[rstest]
-#[case::simple_struct(SIMPLE_STRUCT_SAMPLE, ["pub (super) field1 : String","pub field2 : i32"])]
-#[case::tuple(TUPLE_SAMPLE,["pub (super) String","pub i32"])]
+#[case::simple_struct(SIMPLE_STRUCT_SAMPLE, [FIELD_1_SIMPLE_STRUCT_SAMPLE,FIELD_2_SIMPLE_STRUCT_SAMPLE])]
+#[case::tuple(TUPLE_SAMPLE,[FIELD_1_TUPLE_SAMPLE,FIELD_2_TUPLE_SAMPLE])]
 pub fn check_get_possible_field_method(
     #[case] item_struct_str: &'static str,
     #[case] fields:  [&'static str;2]
@@ -33,7 +32,8 @@ pub fn check_get_possible_field_method(
     let named_fields = possible_named_fields.unwrap();
     assert_eq!(named_fields.len(), 2);
     fields.iter().enumerate().for_each(|(index,&field)|{
-        assert_eq!(named_fields[index].to_token_stream().to_string(), field);
+        assert_eq!(named_fields[index].to_token_stream().to_string().replace(" ", "")
+        , field.to_string().replace(" ", ""));
     });
 }
 
