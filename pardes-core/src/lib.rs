@@ -15,5 +15,8 @@ pub mod error{
 
 pub type Result<T> = std::result::Result<T,error::PardesError>;
 
+const REF_LOCKER_NAME : &'static str = "RefLock";
+const MUT_LOCKER_NAME : &'static str = "MutLock";
+
 #[allow(unused)]
 use crate::samples::struture::*;

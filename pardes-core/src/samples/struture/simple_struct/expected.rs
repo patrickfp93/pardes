@@ -1,9 +1,11 @@
 #[allow(unused)]
 pub use simple_struct_expanse::*;
 
+#[allow(unused)]
 #[seferize::stringify(SIMPLE_STRUCT_TYPE_SAMPLE)]
 pub type SimpleStruct = simple_struct_expanse::SimpleStruct;
 
+#[allow(unused)]
 #[seferize::stringify(SIMPLE_STRUCT_EXPANSE_SAMPLE)]
 mod simple_struct_expanse {
 
@@ -49,11 +51,13 @@ mod simple_struct_expanse {
 
     #[seferize::stringify(SIMPLE_STRUCT_WRAPPER_IMPL_ACCESS_SAMPLE)]
     impl SimpleStruct {
+        #[stringify(SIMPLE_STRUCT_WRAPPER_READER_FIELD_1)]
         pub(in super::super) fn field1(&self) -> guards::SimpleStructRefLock<'_, String> {
             let guard = self._core.read().unwrap();
             guards::SimpleStructRefLock::new(&guard.field1 as *const String, guard)
         }        
 
+        #[stringify(SIMPLE_STRUCT_WRAPPER_READER_FIELD_2)]
         pub fn field2(&self) -> guards::SimpleStructRefLock<'_, i32> {
             let guard = self._core.read().unwrap();
             guards::SimpleStructRefLock::new(&guard.field2 as *const i32, guard)
@@ -156,6 +160,7 @@ mod simple_struct_expanse {
 
 //user Edition
 
+#[allow(unused)]
 impl SimpleStruct {
     pub fn new(field1: String, field2: i32) -> Self {
         Self::builder(field1, field2)

@@ -1,10 +1,13 @@
 use crate::samples::struture::tuple::expected::tuple_expanse::Tuple;
 
+#[allow(unused)]
 #[seferize::stringify("TUPLE_TYPE_SAMPLE")]
 pub type TUPLE = tuple_expanse::Tuple;
 
 #[allow(unused)]
 pub use tuple_expanse::*;
+
+#[allow(unused)]
 #[seferize::stringify("TUPLE_EXPANSE_SAMPLE")]
 mod tuple_expanse {
     #[seferize::ignore]
@@ -45,6 +48,7 @@ mod tuple_expanse {
 
     #[seferize::stringify("TUPLE_WRAPPER_IMPL_ACCESS_SAMPLE")]
     impl Tuple {
+        #[stringify(TUPLE_WRAPPER_READER_F_0)]
         pub(in super::super) fn f0(&self) -> guards::TupleRefLock<'_, String> {
             let guard = self._core.read().unwrap();
             guards::TupleRefLock::new(&guard.0 as *const String, guard)
@@ -56,6 +60,7 @@ mod tuple_expanse {
             return guards::TupleMutLock::new(value, guard);
         }
 
+        #[stringify(TUPLE_WRAPPER_READER_F_1)]
         pub fn f1(&self) -> guards::TupleRefLock<'_, i32> {
             let guard = self._core.read().unwrap();
             guards::TupleRefLock::new(&guard.1 as *const i32, guard)
@@ -150,6 +155,8 @@ mod tuple_expanse {
     }
 }
 
+
+#[allow(unused)]
 impl Tuple {
     pub fn new(value: (String, i32)) -> Self {
         Self::builder(value)

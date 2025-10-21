@@ -230,9 +230,9 @@ dependencies = [
 
 [[package]]
 name = "seferize"
-version = "1.3.5"
+version = "1.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3436038dc6fc2d891fa040284395897627a0cdb192e27a591cac9837484ce34f"
+checksum = "958f1b6a33523e50c1bf2543ff328df04180d1ea86824a4d3d85a5e0616c0085"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -253,9 +253,9 @@ dependencies = [
 
 [[package]]
 name = "seferize_core"
-version = "1.3.5"
+version = "1.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d99f50806358d298dd2666cf2a0c1b08471093a159caa96d7f3e79c500c947ff"
+checksum = "02467f22b7966f573c0e9342a0061881bb4bb85cfce973344d42561cf4af7984"
 dependencies = [
  "proc-macro2",
  "quote",

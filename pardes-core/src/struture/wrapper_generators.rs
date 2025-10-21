@@ -1,4 +1,6 @@
+use syn::Index;
 
+use crate::struture::guard_generator::generate_ref_lock_ident;
 
 use super::*;
 
@@ -13,8 +15,16 @@ pub fn generate_wrapper_struct(item_struct: &ItemStruct) -> ItemStruct {
 
 pub fn generate_wrapper_impl_access(item_struct: &ItemStruct, fields: &[Field]) -> ItemImpl {
     let ident = item_struct.ident.clone();
-    let read_acessor_fn: Vec<ItemFn> = fields.iter().enumerate().map(|(i,f)| generate_read_accessor(f,i)).collect();
-    let write_acessor_fn: Vec<ItemFn> = fields.iter().enumerate().map(|(i,f)| generate_write_accessor(f,i)).collect();
+    let read_acessor_fn: Vec<ItemFn> = fields
+        .iter()
+        .enumerate()
+        .map(|(i, f)| generate_read_accessor(f, i,&ident))
+        .collect();
+    let write_acessor_fn: Vec<ItemFn> = fields
+        .iter()
+        .enumerate()
+        .map(|(i, f)| generate_write_accessor(f, i))
+        .collect();
     parse_quote! {
         impl #ident{
             #(#read_acessor_fn)*
@@ -23,7 +33,6 @@ pub fn generate_wrapper_impl_access(item_struct: &ItemStruct, fields: &[Field]) 
     }
 }
 //precisa ser testado
-
 
 pub fn generate_wrapper_impl_builder(item_struct: &ItemStruct, fields: &[Field]) -> ItemImpl {
     let ident = item_struct.ident.clone();
@@ -55,35 +64,41 @@ pub fn generate_wrapper_impl_builder(item_struct: &ItemStruct, fields: &[Field])
 }
 
 
-
-fn generate_read_accessor(field: &Field, index : usize) -> ItemFn {
+#[seferize::expose_for_tests]
+fn generate_read_accessor(field: &Field, index: usize, type_ident : &Ident) -> ItemFn {
     let vis = escalate_visibility(&field.vis);
-    let ident: TokenStream = if let Some(ident) = field.ident.as_ref()
-    {
-        ident.to_token_stream()
-    }else{
-        parse_str(&format!("{}",index)).unwrap()
-    };
+    let (ident_fn,field_access) = field.ident
+    .as_ref()
+    .map_or_else(
+        || {
+            let ident_fn : TokenStream = parse_str(&format!("f{}",index)).unwrap();
+            let idx = Index::from(index);            
+            (ident_fn,quote! { #idx })
+        },
+        |ident| {
+            let ident_fn: TokenStream = parse_str(&ident.to_string()).unwrap();
+            (ident_fn,quote! { #ident })
+        }
+    );
     let ty = &field.ty;
-
+    let ref_lock = generate_ref_lock_ident(type_ident);
     parse_quote! {
-        #vis fn #ident(&self) -> guards::SimpleStructRefLock<'_, #ty> {
+        #vis fn #ident_fn(&self) -> guards:: #ref_lock <'_, #ty> {
             let guard = self._core.read().unwrap();
-            guards::SimpleStructRefLock::new(&guard.#ident as *const #ty, guard)
+            guards:: #ref_lock ::new(&guard. #field_access as *const #ty, guard)
         }
     }
-}//precisa ser testado
+} //precisa ser testado
 
-fn generate_write_accessor(field: &Field,index : usize) -> ItemFn {
+fn generate_write_accessor(field: &Field, index: usize) -> ItemFn {
     let vis = escalate_visibility(&field.vis);
-    let ident: TokenStream = if let Some(ident) = field.ident.as_ref()
-    {
+    let ident: TokenStream = if let Some(ident) = field.ident.as_ref() {
         ident.to_token_stream()
-    }else{
-        parse_str(&format!("{}",index)).unwrap()
+    } else {
+        parse_str(&format!("{}", index)).unwrap()
     };
     let ty = &field.ty;
-    let method_name : TokenStream = parse_str(&format!("{}_mut", ident)).unwrap();
+    let method_name: TokenStream = parse_str(&format!("{}_mut", ident)).unwrap();
 
     parse_quote! {
         #vis fn #method_name(&self) -> guards::SimpleStructMutLock<'_, #ty> {
@@ -92,7 +107,7 @@ fn generate_write_accessor(field: &Field,index : usize) -> ItemFn {
             guards::SimpleStructMutLock::new(value, guard)
         }
     }
-}//precisa ser testado
+} //precisa ser testado
 
 fn escalate_visibility(vis: &Visibility) -> Visibility {
     match vis {
@@ -113,4 +128,4 @@ fn escalate_visibility(vis: &Visibility) -> Visibility {
         // Mantém visibilidade ampla
         other => other.clone(),
     }
-}//precisa ser testado
+} //precisa ser testado

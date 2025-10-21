@@ -2,9 +2,12 @@ pub(crate) mod core_generators;
 pub(crate) mod wrapper_generators;
 pub(crate) mod normalizer;
 pub(crate) mod util;
+pub(crate) mod guard_generator;
 pub mod error;
+
 pub(crate) use core_generators::*;
 pub(crate) use wrapper_generators::*;
+
 
 use crate::struture::error::ErrorStruture;
 use crate::{Result, struture::normalizer::struct_core_normalizer};
@@ -41,4 +44,3 @@ pub fn generate_head_type(item_struct: &ItemStruct) -> TokenStream {
         #vis type #ident = #module_ident::#ident;
     };
 }
-
