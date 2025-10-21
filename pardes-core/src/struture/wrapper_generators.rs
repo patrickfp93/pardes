@@ -13,14 +13,14 @@ pub fn generate_wrapper_struct(item_struct: &ItemStruct) -> ItemStruct {
     }
 }
 
-pub fn generate_wrapper_impl_access(item_struct: &ItemStruct, fields: &[Field]) -> ItemImpl {
+pub fn generate_wrapper_impl_access(item_struct: &ItemStruct) -> ItemImpl {
     let ident = item_struct.ident.clone();
-    let read_acessor_fn: Vec<ItemFn> = fields
+    let read_acessor_fn: Vec<ItemFn> = item_struct.fields
         .iter()
         .enumerate()
         .map(|(i, f)| generate_read_accessor(f, i,&ident))
         .collect();
-    let write_acessor_fn: Vec<ItemFn> = fields
+    let write_acessor_fn: Vec<ItemFn> = item_struct.fields
         .iter()
         .enumerate()
         .map(|(i, f)| generate_write_accessor(f, i,&ident))
@@ -32,7 +32,6 @@ pub fn generate_wrapper_impl_access(item_struct: &ItemStruct, fields: &[Field]) 
         }
     }
 }
-//precisa ser testado
 
 pub fn generate_wrapper_impl_builder(item_struct: &ItemStruct, fields: &[Field]) -> ItemImpl {
     let ident = item_struct.ident.clone();

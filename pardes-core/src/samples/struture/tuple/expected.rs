@@ -48,19 +48,17 @@ mod tuple_expanse {
             let guard = self._core.read().unwrap();
             return guards::TupleRefLock::new(&guard.0 as *const String, guard);
         }
+        #[stringify(TUPLE_WRAPPER_READER_F_1)]
+        pub fn f1(&self) -> guards::TupleRefLock<'_, i32> {
+            let guard = self._core.read().unwrap();
+            return guards::TupleRefLock::new(&guard.1 as *const i32, guard);
+        }
         #[stringify(TUPLE_WRAPPER_WRITER_F_0)]
         pub(in super::super) fn f0_mut(&self) -> guards::TupleMutLock<'_, String> {
             let mut guard = self._core.write().unwrap();
             let value = &mut guard.0 as *mut String;
             return guards::TupleMutLock::new(value, guard);
         }
-
-        #[stringify(TUPLE_WRAPPER_READER_F_1)]
-        pub fn f1(&self) -> guards::TupleRefLock<'_, i32> {
-            let guard = self._core.read().unwrap();
-            return guards::TupleRefLock::new(&guard.1 as *const i32, guard);
-        }
-
         #[stringify(TUPLE_WRAPPER_WRITER_F_1)]
         pub fn f1_mut(&self) -> guards::TupleMutLock<'_, i32> {
             let mut guard = self._core.write().unwrap();

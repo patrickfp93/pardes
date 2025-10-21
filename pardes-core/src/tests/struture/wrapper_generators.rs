@@ -61,7 +61,7 @@ pub fn check_generate_read_accessor(#[case]item_struct_str : &'static str,#[case
 pub fn check_generate_write_accessor(#[case]item_struct_str : &'static str,#[case] reader_method_str_list : Vec<&'static str>){
     let item_struct : ItemStruct = parse_str(item_struct_str).unwrap();
     let expected_reader_methods: Vec<ItemFn> = to_items(reader_method_str_list.as_slice()).unwrap(); 
-    let fields = item_struct.fields;
+    let fields = get_possible_fields(&item_struct).unwrap();
     let ident_struct = &item_struct.ident;
     //check if same len
     assert_eq!(expected_reader_methods.len(),fields.len());
@@ -74,4 +74,16 @@ pub fn check_generate_write_accessor(#[case]item_struct_str : &'static str,#[cas
         assert_eq!(g_r_m.to_token_string(),e_r_m.to_token_string())
     });
 
+}
+
+
+#[rstest]
+#[case::simple_struct(SIMPLE_STRUCT_SAMPLE,SIMPLE_STRUCT_WRAPPER_IMPL_ACCESS_SAMPLE)]
+#[case::tuple(TUPLE_SAMPLE,TUPLE_WRAPPER_IMPL_ACCESS_SAMPLE)]
+pub fn check_generate_wrapper_impl_access(#[case]item_struct_str : &'static str,
+ #[case]impl_access_str : &'static str){
+    let item_struct : ItemStruct = parse_str(item_struct_str).unwrap();
+    let expected_impl_access : ItemImpl = parse_str(impl_access_str).unwrap();
+    let generated_impl_access: ItemImpl = generate_wrapper_impl_access(&item_struct);
+    assert_eq!(generated_impl_access.to_token_string(),expected_impl_access.to_token_string())
 }
