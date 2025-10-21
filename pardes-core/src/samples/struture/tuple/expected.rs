@@ -1,10 +1,6 @@
-use crate::samples::struture::tuple::expected::tuple_expanse::Tuple;
-
-#[allow(unused)]
 #[seferize::stringify("TUPLE_TYPE_SAMPLE")]
-pub type TUPLE = tuple_expanse::Tuple;
+pub type Tuple = tuple_expanse::Tuple;
 
-#[allow(unused)]
 pub use tuple_expanse::*;
 
 #[allow(unused)]
@@ -17,7 +13,6 @@ mod tuple_expanse {
     #[doc(hidden)]
     mod _core {
         #[seferize::stringify("TUPLE_CORE_SAMPLE")]
-        #[allow(unused)]
         pub struct _Core(pub String, pub i32);
 
         #[seferize::stringify("TUPLE_IMPL_DEBUG_SAMPLE")]
@@ -51,9 +46,9 @@ mod tuple_expanse {
         #[stringify(TUPLE_WRAPPER_READER_F_0)]
         pub(in super::super) fn f0(&self) -> guards::TupleRefLock<'_, String> {
             let guard = self._core.read().unwrap();
-            guards::TupleRefLock::new(&guard.0 as *const String, guard)
+            return guards::TupleRefLock::new(&guard.0 as *const String, guard);
         }
-
+        #[stringify(TUPLE_WRAPPER_WRITER_F_0)]
         pub(in super::super) fn f0_mut(&self) -> guards::TupleMutLock<'_, String> {
             let mut guard = self._core.write().unwrap();
             let value = &mut guard.0 as *mut String;
@@ -63,9 +58,10 @@ mod tuple_expanse {
         #[stringify(TUPLE_WRAPPER_READER_F_1)]
         pub fn f1(&self) -> guards::TupleRefLock<'_, i32> {
             let guard = self._core.read().unwrap();
-            guards::TupleRefLock::new(&guard.1 as *const i32, guard)
+            return guards::TupleRefLock::new(&guard.1 as *const i32, guard);
         }
 
+        #[stringify(TUPLE_WRAPPER_WRITER_F_1)]
         pub fn f1_mut(&self) -> guards::TupleMutLock<'_, i32> {
             let mut guard = self._core.write().unwrap();
             let value = &mut guard.1 as *mut i32;

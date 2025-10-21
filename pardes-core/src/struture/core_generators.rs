@@ -1,8 +1,8 @@
-use syn::ItemMacro;
+use syn::ItemMod;
 
 use super::*;
 
-pub fn generate_core_module(item_struct: &ItemStruct, fields: &[Field]) -> ItemMacro {
+pub fn generate_core_module(item_struct: &ItemStruct, fields: &[Field]) -> ItemMod {
     let mut core_item_struct = item_struct.clone();
     struct_core_normalizer(&mut core_item_struct);
     core_item_struct.vis = parse_str("pub").unwrap();

@@ -1,7 +1,5 @@
-#[allow(unused)]
 pub use simple_struct_expanse::*;
 
-#[allow(unused)]
 #[seferize::stringify(SIMPLE_STRUCT_TYPE_SAMPLE)]
 pub type SimpleStruct = simple_struct_expanse::SimpleStruct;
 
@@ -10,7 +8,6 @@ pub type SimpleStruct = simple_struct_expanse::SimpleStruct;
 mod simple_struct_expanse {
 
     #[seferize::ignore]
-    #[allow(unused)]
     pub use _core::*;
 
     #[seferize::stringify(SIMPLE_STRUCT_CORE_MODULE_SAMPLE)]
@@ -54,22 +51,24 @@ mod simple_struct_expanse {
         #[stringify(SIMPLE_STRUCT_WRAPPER_READER_FIELD_1)]
         pub(in super::super) fn field1(&self) -> guards::SimpleStructRefLock<'_, String> {
             let guard = self._core.read().unwrap();
-            guards::SimpleStructRefLock::new(&guard.field1 as *const String, guard)
+            return guards::SimpleStructRefLock::new(&guard.field1 as *const String, guard);
         }        
 
         #[stringify(SIMPLE_STRUCT_WRAPPER_READER_FIELD_2)]
         pub fn field2(&self) -> guards::SimpleStructRefLock<'_, i32> {
             let guard = self._core.read().unwrap();
-            guards::SimpleStructRefLock::new(&guard.field2 as *const i32, guard)
+            return guards::SimpleStructRefLock::new(&guard.field2 as *const i32, guard);
         }
 
+        #[stringify(SIMPLE_STRUCT_WRAPPER_WRITER_FIELD_1)]
         pub(in super::super) fn field1_mut(&self) -> guards::SimpleStructMutLock<'_, String> {
             let mut guard = self._core.write().unwrap();
             let value = &mut guard.field1 as *mut String;
             return guards::SimpleStructMutLock::new(value, guard);
         }
 
-        pub(super) fn field2_mut(&self) -> guards::SimpleStructMutLock<'_, i32> {
+        #[stringify(SIMPLE_STRUCT_WRAPPER_WRITER_FIELD_2)]
+        pub fn field2_mut(&self) -> guards::SimpleStructMutLock<'_, i32> {
             let mut guard = self._core.write().unwrap();
             let value = &mut guard.field2 as *mut i32;
             return guards::SimpleStructMutLock::new(value, guard);
