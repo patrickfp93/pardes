@@ -1,4 +1,4 @@
-use syn::ItemFn;
+use syn::{Field, ItemFn, Visibility};
 
 use crate::tests::utilities::to_items;
 
@@ -86,4 +86,31 @@ pub fn check_generate_wrapper_impl_access(#[case]item_struct_str : &'static str,
     let expected_impl_access : ItemImpl = parse_str(impl_access_str).unwrap();
     let generated_impl_access: ItemImpl = generate_wrapper_impl_access(&item_struct);
     assert_eq!(generated_impl_access.to_token_string(),expected_impl_access.to_token_string())
+}
+
+#[rstest]
+#[case(syn::parse_quote!(pub), syn::parse_quote!(pub))]
+#[case(syn::parse_quote!(pub(super)), syn::parse_quote!(pub(in super::super)))]
+#[case(syn::parse_quote!(pub(crate)), syn::parse_quote!(pub(crate)))]
+#[case(syn::parse_quote!(pub(in super::super)), syn::parse_quote!(pub(in super::super::super)))]
+#[case(syn::parse_quote!(), syn::parse_quote!(pub(super)))] // caso de private, espera escalonar
+pub fn check_escalate_visibility(
+    #[case] vis_sample: Visibility,
+    #[case] vis_expected: Visibility,
+) {
+    use quote::ToTokens;
+
+    let result = testable_escalate_visibility(&vis_sample);
+    assert_eq!(result.to_token_stream().to_string(), vis_expected.to_token_stream().to_string());
+}
+
+
+#[rstest]
+#[case((syn::parse_quote!(pub field_1 : usize),0), (syn::parse_quote!(field_1),syn::parse_quote!(field_1)))]
+#[case((syn::parse_quote!(pub usize),0), (syn::parse_quote!(f0),syn::parse_quote!(0)))]
+pub fn check_get_method_idents(#[case](field,index) : (Field,usize),#[case]idents_exp:(TokenStream,TokenStream)){
+    let idents = testable_get_method_idents(&field, index);
+
+    assert_eq!(idents.0.to_string(),idents_exp.0.to_string());
+    assert_eq!(idents.1.to_string(),idents_exp.1.to_string());
 }

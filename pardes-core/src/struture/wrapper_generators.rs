@@ -106,6 +106,7 @@ fn generate_write_accessor(field: &Field, index: usize,type_ident : &Ident) -> I
     }
 }
 
+#[seferize::expose_for_tests]
 fn escalate_visibility(vis: &Visibility) -> Visibility {
     match vis {
         // Caso privado → sobe um nível (pai)
@@ -125,8 +126,9 @@ fn escalate_visibility(vis: &Visibility) -> Visibility {
         // Mantém visibilidade ampla
         other => other.clone(),
     }
-} //precisa ser testado
+}
 
+#[seferize::expose_for_tests]
 fn get_method_idents(field: &Field, index: usize) -> (TokenStream,TokenStream){
     field.ident
     .as_ref()
@@ -141,4 +143,4 @@ fn get_method_idents(field: &Field, index: usize) -> (TokenStream,TokenStream){
             (ident_fn,quote! { #ident })
         }
     )
-}//precisa ser testado
+}
