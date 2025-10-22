@@ -4,6 +4,7 @@ use syn::{Ident, parse_str};
 
 use crate::{MUT_LOCKER_NAME, REF_LOCKER_NAME};
 
+#[seferize::expose_for_tests]
 pub(super) fn generate_ref_lock_ident(type_ident: &Ident) -> TokenStream {
     Ident::new(
         &format!("{}{}", type_ident, REF_LOCKER_NAME),
@@ -12,6 +13,7 @@ pub(super) fn generate_ref_lock_ident(type_ident: &Ident) -> TokenStream {
     .to_token_stream()
 }//precisa fazer test
 
+#[seferize::expose_for_tests]
 pub(super) fn generate_mut_lock_ident(type_ident: &Ident) -> TokenStream {
     let ident: Ident =
         parse_str(&format!("{}{}", &type_ident.to_string(), MUT_LOCKER_NAME)).unwrap();

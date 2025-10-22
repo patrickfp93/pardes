@@ -1,21 +1,28 @@
 use quote::ToTokens;
 use rstest::rstest;
 
-use crate::struture::util::*;
 use super::*;
+use crate::struture::util::*;
 
 #[rstest]
 #[case::simple_struct(SIMPLE_STRUCT_SAMPLE, "simple_struct_expanse")]
-#[case::tuple(TUPLE_SAMPLE,"tuple_expanse")]
+#[case::tuple(TUPLE_SAMPLE, "tuple_expanse")]
 pub fn check_get_ident_expanse_module_method(
     #[case] item_struct_str: &'static str,
-    #[case] ident_sample: &'static str
+    #[case] ident_sample: &'static str,
 ) {
     let item_struct: ItemStruct = parse_str(item_struct_str).unwrap();
-    
+
     let ident_expanse_module = get_ident_expanse_module(&item_struct);
 
-    assert_eq!(ident_expanse_module.to_string(),ident_sample)
+    assert_eq!(ident_expanse_module.to_string(), ident_sample)
+}
+
+pub fn extract_content_from_module(item_mod: &ItemMod) -> Option<TokenStream> {
+    if let Some(content) = item_mod.clone().content.map(|c| c.1) {
+        return Some(quote::quote! (#(#content)*));
+    }
+    None
 }
 
 /*#[rstest]

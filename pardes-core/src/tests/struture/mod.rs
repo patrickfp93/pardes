@@ -1,5 +1,5 @@
 use crate::struture::*;
-use crate::tests::struture::util::ToStringItem;
+use crate::tests::struture::util::{extract_content_from_module, ToStringItem};
 use proc_macro2::TokenStream;
 use rstest::rstest;
 use syn::{ItemImpl, ItemMod};
@@ -15,6 +15,8 @@ pub mod core_generators;
 
 pub mod wrapper_generators;
 
+pub mod guard_generators;
+
 #[rstest]
 #[case::simple_struct(SIMPLE_STRUCT_SAMPLE, SIMPLE_STRUCT_TYPE_SAMPLE)]
 #[case::tuple(TUPLE_SAMPLE, TUPLE_TYPE_SAMPLE)]
@@ -28,6 +30,24 @@ pub fn check_generate_head_type_method(
     assert_eq!(
         head_type_generated.to_string(),
         head_type_sample.to_string()
+    )
+}
+
+
+#[rstest]
+#[case::simple_struct(SIMPLE_STRUCT_SAMPLE, SIMPLE_STRUCT_EXPANSE_SAMPLE)]
+#[case::tuple(TUPLE_SAMPLE, TUPLE_EXPANSE_SAMPLE)]
+pub fn check_expantion(
+    #[case] item_struct_str: &'static str,
+    #[case] expected_expanse_str: &'static str,
+) {
+    let item_struct: ItemStruct = parse_str(item_struct_str).unwrap();
+    let head_type_generated: TokenStream = expantion(item_struct).unwrap();
+    let expected_expanse: ItemMod = parse_str(expected_expanse_str).unwrap();
+    let expected_expanse = extract_content_from_module(&expected_expanse).unwrap();
+    assert_eq!(
+        head_type_generated.to_string(),
+        expected_expanse.to_string()
     )
 }
 

@@ -2,7 +2,7 @@ pub(crate) mod core_generators;
 pub(crate) mod wrapper_generators;
 pub(crate) mod normalizer;
 pub(crate) mod util;
-pub(crate) mod guard_generator;
+pub(crate) mod guard_generators;
 pub mod error;
 
 pub(crate) use core_generators::*;
@@ -10,7 +10,7 @@ pub(crate) use wrapper_generators::*;
 
 
 use crate::struture::error::ErrorStruture;
-use crate::struture::guard_generator::generate_guards;
+use crate::struture::guard_generators::generate_guards;
 use crate::{Result, struture::normalizer::struct_core_normalizer};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};

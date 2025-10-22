@@ -1,18 +1,23 @@
 use syn::Index;
 
-use crate::struture::guard_generator::{generate_mut_lock_ident, generate_ref_lock_ident};
+use crate::struture::guard_generators::{generate_mut_lock_ident, generate_ref_lock_ident};
 
 use super::*;
 
-
-pub fn generate_wrapper(item_struct: &ItemStruct) -> TokenStream{
+pub fn generate_wrapper(item_struct: &ItemStruct) -> TokenStream {
     let w_struct = generate_wrapper_struct(item_struct);
     let w_builder = generate_wrapper_impl_builder(item_struct);
-
+    let w_access = generate_wrapper_impl_access(item_struct);
+    let w_impl_debug = generate_wrapper_impl_debug(&item_struct.ident);
+    let w_partial_eq = generate_wrapper_impl_partial_eq(&item_struct.ident);
     quote! {
         #w_struct
+        #w_builder
+        #w_access
+        #w_impl_debug
+        #w_partial_eq
     }
-}
+}//precisa ser testado
 
 #[seferize::expose_for_tests]
 fn generate_wrapper_struct(item_struct: &ItemStruct) -> ItemStruct {
@@ -25,55 +30,49 @@ fn generate_wrapper_struct(item_struct: &ItemStruct) -> ItemStruct {
 }
 
 #[seferize::expose_for_tests]
-fn generate_wrapper_impl_access(item_struct: &ItemStruct) -> ItemImpl {
-    let ident = item_struct.ident.clone();
-    let read_acessor_fn: Vec<ItemFn> = item_struct.fields
-        .iter()
-        .enumerate()
-        .map(|(i, f)| generate_read_accessor(f, i,&ident))
-        .collect();
-    let write_acessor_fn: Vec<ItemFn> = item_struct.fields
-        .iter()
-        .enumerate()
-        .map(|(i, f)| generate_write_accessor(f, i,&ident))
-        .collect();
-    parse_quote! {
-        impl #ident{
-            #(#read_acessor_fn)*
-            #(#write_acessor_fn)*
-        }
-    }
-}
-
-#[seferize::expose_for_tests]
 fn generate_wrapper_impl_builder(item_struct: &ItemStruct) -> ItemImpl {
     let ident = item_struct.ident.clone();
-    let is_named_fields = item_struct.fields.iter().find(|f| f.ident.is_some()).is_some();
-     
-    let (params,core_init) = if is_named_fields {
-        // Caso: fields nomeados 
-        let params = item_struct.fields.iter().map(|field|{
+    let is_named_fields = item_struct
+        .fields
+        .iter()
+        .find(|f| f.ident.is_some())
+        .is_some();
+
+    let (params, core_init) = if is_named_fields {
+        // Caso: fields nomeados
+        let params = item_struct.fields.iter().map(|field| {
             let ident = field.clone().ident.unwrap();
             let ty = field.ty.clone();
             quote! (#ident : #ty)
         });
-        let field_names: Vec<&Ident> = item_struct.fields.iter().map(|f| f.ident.as_ref().unwrap()).collect();
-        (quote! {
-           #(#params),* 
-        },quote! {
-            _core::_Core { #(#field_names),* }
-        })
+        let field_names: Vec<&Ident> = item_struct
+            .fields
+            .iter()
+            .map(|f| f.ident.as_ref().unwrap())
+            .collect();
+        (
+            quote! {
+               #(#params),*
+            },
+            quote! {
+                _core::_Core { #(#field_names),* }
+            },
+        )
     } else {
         // Caso: fields não nomeados (tuple struct)
-        let tys = item_struct.fields.iter().map(|f|f.ty.to_token_stream());
+        let tys = item_struct.fields.iter().map(|f| f.ty.to_token_stream());
         let params: TokenStream = quote! {value : ( #(#tys),* )};
 
-        let field_indices = (0..item_struct.fields.len()).map(syn::Index::from)
-        .map(|i| quote! {value.#i});
+        let field_indices = (0..item_struct.fields.len())
+            .map(syn::Index::from)
+            .map(|i| quote! {value.#i});
 
-        (params,quote! {
-            _core::_Core ( #(#field_indices),* )
-        })
+        (
+            params,
+            quote! {
+                _core::_Core ( #(#field_indices),* )
+            },
+        )
     };
     parse_quote! {
         impl #ident{
@@ -87,11 +86,33 @@ fn generate_wrapper_impl_builder(item_struct: &ItemStruct) -> ItemImpl {
     }
 }
 
+#[seferize::expose_for_tests]
+fn generate_wrapper_impl_access(item_struct: &ItemStruct) -> ItemImpl {
+    let ident = item_struct.ident.clone();
+    let read_acessor_fn: Vec<ItemFn> = item_struct
+        .fields
+        .iter()
+        .enumerate()
+        .map(|(i, f)| generate_read_accessor(f, i, &ident))
+        .collect();
+    let write_acessor_fn: Vec<ItemFn> = item_struct
+        .fields
+        .iter()
+        .enumerate()
+        .map(|(i, f)| generate_write_accessor(f, i, &ident))
+        .collect();
+    parse_quote! {
+        impl #ident{
+            #(#read_acessor_fn)*
+            #(#write_acessor_fn)*
+        }
+    }
+}
 
 #[seferize::expose_for_tests]
-fn generate_read_accessor(field: &Field, index: usize, type_ident : &Ident) -> ItemFn {
+fn generate_read_accessor(field: &Field, index: usize, type_ident: &Ident) -> ItemFn {
     let vis = escalate_visibility(&field.vis);
-    let (ident_fn,field_access) = get_method_idents(field,index);
+    let (ident_fn, field_access) = get_method_idents(field, index);
     let ty = &field.ty;
     let ref_lock = generate_ref_lock_ident(type_ident);
     parse_quote! {
@@ -103,9 +124,9 @@ fn generate_read_accessor(field: &Field, index: usize, type_ident : &Ident) -> I
 }
 
 #[seferize::expose_for_tests]
-fn generate_write_accessor(field: &Field, index: usize,type_ident : &Ident) -> ItemFn {
+fn generate_write_accessor(field: &Field, index: usize, type_ident: &Ident) -> ItemFn {
     let vis = escalate_visibility(&field.vis);
-    let (ident_fn,field_access) = get_method_idents(field,index);
+    let (ident_fn, field_access) = get_method_idents(field, index);
 
     let ty = &field.ty;
     let method_name: TokenStream = parse_str(&format!("{}_mut", ident_fn)).unwrap();
@@ -142,18 +163,41 @@ fn escalate_visibility(vis: &Visibility) -> Visibility {
 }
 
 #[seferize::expose_for_tests]
-fn get_method_idents(field: &Field, index: usize) -> (TokenStream,TokenStream){
-    field.ident
-    .as_ref()
-    .map_or_else(
+fn get_method_idents(field: &Field, index: usize) -> (TokenStream, TokenStream) {
+    field.ident.as_ref().map_or_else(
         || {
-            let ident_fn : TokenStream = parse_str(&format!("f{}",index)).unwrap();
-            let idx = Index::from(index);            
-            (ident_fn,quote! { #idx })
+            let ident_fn: TokenStream = parse_str(&format!("f{}", index)).unwrap();
+            let idx = Index::from(index);
+            (ident_fn, quote! { #idx })
         },
         |ident| {
             let ident_fn: TokenStream = parse_str(&ident.to_string()).unwrap();
-            (ident_fn,quote! { #ident })
-        }
+            (ident_fn, quote! { #ident })
+        },
     )
+}
+
+#[seferize::expose_for_tests]
+fn generate_wrapper_impl_debug(struct_ident: &Ident) -> TokenStream {
+    quote! {
+        impl std::fmt::Debug for #struct_ident {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                (*self._core.read().unwrap()).fmt(f)
+            }
+        }
+    }
+}
+
+#[seferize::expose_for_tests]
+fn generate_wrapper_impl_partial_eq(struct_ident: &Ident) -> TokenStream {
+    quote! {
+    impl PartialEq for #struct_ident {
+        fn eq(&self, other: &Self) -> bool {
+            let ptr_number = self._core.as_ref() as *const std::sync::RwLock<_core::_Core> as usize;
+            let other_ptr_number =
+                other._core.as_ref() as *const std::sync::RwLock<_core::_Core> as usize;
+            ptr_number == other_ptr_number
+        }
+    }
+    }
 }

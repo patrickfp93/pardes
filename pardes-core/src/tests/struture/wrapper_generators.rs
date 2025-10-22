@@ -112,3 +112,29 @@ pub fn check_get_method_idents(#[case](field,index) : (Field,usize),#[case]ident
     assert_eq!(idents.0.to_string(),idents_exp.0.to_string());
     assert_eq!(idents.1.to_string(),idents_exp.1.to_string());
 }
+
+#[rstest]
+#[case::simple_struct(SIMPLE_STRUCT_SAMPLE,SIMPLE_STRUCT_WRAPPER_IMPL_DEBUG_SAMPLE)]
+#[case::simple_struct(TUPLE_SAMPLE,TUPLE_WRAPPER_IMPL_DEBUG_SAMPLE)]
+pub fn check_generate_wrapper_impl_debug(#[case]item_struct_str : &'static str,
+ #[case]expected_impl_debug_str : &'static str){
+
+    let item_struct : ItemStruct = parse_str(item_struct_str).unwrap();
+    let expected_impl_debug: TokenStream = parse_str(expected_impl_debug_str).unwrap();
+    let generated_impl_debug = testable_generate_wrapper_impl_debug(&item_struct.ident);
+
+    assert_eq!(generated_impl_debug.to_string(),expected_impl_debug.to_string())
+}
+
+#[rstest]
+#[case::simple_struct(SIMPLE_STRUCT_SAMPLE,SIMPLE_STRUCT_WRAPPER_IMPL_PARTIAL_EQ_SAMPLE)]
+#[case::simple_struct(TUPLE_SAMPLE,TUPLE_WRAPPER_IMPL_PARTIAL_EQ_SAMPLE)]
+pub fn check_generate_wrapper_impl_partial_eq(#[case]item_struct_str : &'static str,
+ #[case]expected_impl_partial_eq_str : &'static str){
+
+    let item_struct : ItemStruct = parse_str(item_struct_str).unwrap();
+    let expected_impl_partial_eq: TokenStream = parse_str(expected_impl_partial_eq_str).unwrap();
+    let generated_impl_debug = testable_generate_wrapper_impl_partial_eq(&item_struct.ident);
+
+    assert_eq!(generated_impl_debug.to_string(),expected_impl_partial_eq.to_string())
+}
