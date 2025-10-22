@@ -4,7 +4,18 @@ use crate::struture::guard_generator::{generate_mut_lock_ident, generate_ref_loc
 
 use super::*;
 
-pub fn generate_wrapper_struct(item_struct: &ItemStruct) -> ItemStruct {
+
+pub fn generate_wrapper(item_struct: &ItemStruct) -> TokenStream{
+    let w_struct = generate_wrapper_struct(item_struct);
+    let w_builder = generate_wrapper_impl_builder(item_struct);
+
+    quote! {
+        #w_struct
+    }
+}
+
+#[seferize::expose_for_tests]
+fn generate_wrapper_struct(item_struct: &ItemStruct) -> ItemStruct {
     let ident = item_struct.ident.clone();
     parse_quote! {
         pub struct #ident {
@@ -13,7 +24,8 @@ pub fn generate_wrapper_struct(item_struct: &ItemStruct) -> ItemStruct {
     }
 }
 
-pub fn generate_wrapper_impl_access(item_struct: &ItemStruct) -> ItemImpl {
+#[seferize::expose_for_tests]
+fn generate_wrapper_impl_access(item_struct: &ItemStruct) -> ItemImpl {
     let ident = item_struct.ident.clone();
     let read_acessor_fn: Vec<ItemFn> = item_struct.fields
         .iter()
@@ -33,18 +45,19 @@ pub fn generate_wrapper_impl_access(item_struct: &ItemStruct) -> ItemImpl {
     }
 }
 
-pub fn generate_wrapper_impl_builder(item_struct: &ItemStruct, fields: &[Field]) -> ItemImpl {
+#[seferize::expose_for_tests]
+fn generate_wrapper_impl_builder(item_struct: &ItemStruct) -> ItemImpl {
     let ident = item_struct.ident.clone();
-    let is_named_fields = fields.iter().find(|f| f.ident.is_some()).is_some();
+    let is_named_fields = item_struct.fields.iter().find(|f| f.ident.is_some()).is_some();
      
     let (params,core_init) = if is_named_fields {
         // Caso: fields nomeados 
-        let params = fields.iter().map(|field|{
+        let params = item_struct.fields.iter().map(|field|{
             let ident = field.clone().ident.unwrap();
             let ty = field.ty.clone();
             quote! (#ident : #ty)
         });
-        let field_names: Vec<&Ident> = fields.iter().map(|f| f.ident.as_ref().unwrap()).collect();
+        let field_names: Vec<&Ident> = item_struct.fields.iter().map(|f| f.ident.as_ref().unwrap()).collect();
         (quote! {
            #(#params),* 
         },quote! {
@@ -52,10 +65,10 @@ pub fn generate_wrapper_impl_builder(item_struct: &ItemStruct, fields: &[Field])
         })
     } else {
         // Caso: fields não nomeados (tuple struct)
-        let tys = fields.iter().map(|f|f.ty.to_token_stream());
+        let tys = item_struct.fields.iter().map(|f|f.ty.to_token_stream());
         let params: TokenStream = quote! {value : ( #(#tys),* )};
 
-        let field_indices = (0..fields.len()).map(syn::Index::from)
+        let field_indices = (0..item_struct.fields.len()).map(syn::Index::from)
         .map(|i| quote! {value.#i});
 
         (params,quote! {

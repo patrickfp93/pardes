@@ -8,8 +8,7 @@ pub fn check_generate_core_module(
     #[case] code_module_sample_str: &'static str,
 ) {
     let item_struct: ItemStruct = parse_str(item_struct_str).unwrap();
-    let fields: Vec<syn::Field> = get_possible_fields(&item_struct).unwrap();
-    let gen_core_module = generate_core_module(&item_struct, &fields);
+    let gen_core_module = generate_core_module(&item_struct);
     let code_module_sample: ItemMod = parse_str(code_module_sample_str).unwrap();
     assert_eq!(
         gen_core_module.to_token_string(),
@@ -25,8 +24,7 @@ pub fn check_generate_debug_impl_core_method(
     #[case] desired_impl_token_sample_str: &'static str,
 ) {
     let item_struct: ItemStruct = parse_str(item_struct_str).unwrap();
-    let fields: Vec<syn::Field> = get_possible_fields(&item_struct).unwrap();
-    let impl_token: ItemImpl = generate_debug_impl_core(&fields, &item_struct.ident);
+    let impl_token: ItemImpl = generate_debug_impl_core(&item_struct);
     let desired_impl_sample: ItemImpl = parse_str(desired_impl_token_sample_str).unwrap();
     assert_eq!(
         impl_token.to_token_string(),

@@ -10,6 +10,7 @@ pub(crate) use wrapper_generators::*;
 
 
 use crate::struture::error::ErrorStruture;
+use crate::struture::guard_generator::generate_guards;
 use crate::{Result, struture::normalizer::struct_core_normalizer};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -17,21 +18,21 @@ use syn::{Field, Ident, ItemImpl,ItemFn, ItemStruct,Visibility, parse_quote, par
 const CORE_STRUCT_NAME: &'static str = "_Core";
 const EXPANSE_MODULE_NAME: &'static str = "expanse";
 
-use crate::struture::util::{get_ident_expanse_module, get_possible_fields};
+use crate::struture::util::get_ident_expanse_module;
 
 pub fn expantion(item_struct: ItemStruct) -> Result<TokenStream> {
-    //create core module
+    if item_struct.fields.len() == 0 {return Err(ErrorStruture::NoFields.into())}
     let head_type = generate_head_type(&item_struct);
-    let fields = get_possible_fields(&item_struct).ok_or(ErrorStruture::NoFields)?;
     let expanse_module_ident = get_ident_expanse_module(&item_struct);
-    let core_module = generate_core_module(&item_struct, &fields);
-    let wrapper_struct = generate_wrapper_struct(&item_struct);
-
+    let core_module = generate_core_module(&item_struct);
+    let wrapper = generate_wrapper(&item_struct);
+    let guards = generate_guards(&item_struct.ident);
     Ok(quote! {
         #head_type
         mod #expanse_module_ident{
             #core_module
-            #wrapper_struct
+            #wrapper
+            #guards
         }
     })
 } //testar expantion depois

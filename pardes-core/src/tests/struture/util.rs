@@ -18,7 +18,7 @@ pub fn check_get_ident_expanse_module_method(
     assert_eq!(ident_expanse_module.to_string(),ident_sample)
 }
 
-#[rstest]
+/*#[rstest]
 #[case::simple_struct(SIMPLE_STRUCT_SAMPLE, [FIELD_1_SIMPLE_STRUCT_SAMPLE,FIELD_2_SIMPLE_STRUCT_SAMPLE])]
 #[case::tuple(TUPLE_SAMPLE,[FIELD_1_TUPLE_SAMPLE,FIELD_2_TUPLE_SAMPLE])]
 pub fn check_get_possible_field_method(
@@ -35,7 +35,7 @@ pub fn check_get_possible_field_method(
         assert_eq!(named_fields[index].to_token_stream().to_string().replace(" ", "")
         , field.to_string().replace(" ", ""));
     });
-}
+}*/
 
 pub trait ToStringItem {
     fn to_token_string(&self) -> String;

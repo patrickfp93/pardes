@@ -2,11 +2,11 @@ use syn::ItemMod;
 
 use super::*;
 
-pub fn generate_core_module(item_struct: &ItemStruct, fields: &[Field]) -> ItemMod {
+pub fn generate_core_module(item_struct: &ItemStruct) -> ItemMod {
     let mut core_item_struct = item_struct.clone();
     struct_core_normalizer(&mut core_item_struct);
     core_item_struct.vis = parse_str("pub").unwrap();
-    let debug_impl = generate_debug_impl_core(fields, &item_struct.ident);
+    let debug_impl = generate_debug_impl_core(item_struct);
 
     parse_quote! {
         #[doc(hidden)]
@@ -17,10 +17,10 @@ pub fn generate_core_module(item_struct: &ItemStruct, fields: &[Field]) -> ItemM
     }
 }
 
-pub fn generate_debug_impl_core(fields: &[Field], struct_ident: &Ident) -> ItemImpl {
+pub fn generate_debug_impl_core(item_struct: &ItemStruct) -> ItemImpl {
     let core_ident: TokenStream = parse_str(CORE_STRUCT_NAME).unwrap();
-    let struct_name = struct_ident.to_string();
-    let field_tokens: Vec<TokenStream> = fields
+    let struct_name = item_struct.ident.to_string();
+    let field_tokens: Vec<TokenStream> = item_struct.fields
         .iter()
         .enumerate()
         .map(|(i, f)| {
@@ -40,7 +40,7 @@ pub fn generate_debug_impl_core(fields: &[Field], struct_ident: &Ident) -> ItemI
         })
         .collect();
     let type_debug_method_token: TokenStream = parse_str(
-        fields[0]
+        item_struct.fields.iter().nth(0).unwrap()
             .ident
             .clone()
             .map_or_else(|| "debug_tuple", |_| "debug_struct"),

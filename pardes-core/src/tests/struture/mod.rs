@@ -5,7 +5,7 @@ use rstest::rstest;
 use syn::{ItemImpl, ItemMod};
 use syn::{ItemStruct, parse_str};
 
-use crate::struture::{core_generators::*, util::get_possible_fields};
+use crate::struture::core_generators::*;
 use crate::*;
 pub mod util;
 

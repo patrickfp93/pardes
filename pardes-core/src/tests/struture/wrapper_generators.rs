@@ -13,7 +13,7 @@ pub fn check_generate_wrapper_struct(
 ) {
     let item_struct: ItemStruct = parse_str(item_struct_str).unwrap();
     let wrapper_sample: ItemStruct = parse_str(wrapper_sample_str).unwrap();
-    let wrapper = generate_wrapper_struct(&item_struct);
+    let wrapper = testable_generate_wrapper_struct(&item_struct);
     assert_eq!(wrapper_sample.to_token_string(), wrapper.to_token_string())
 }
 
@@ -26,8 +26,7 @@ pub fn check_generate_wrapper_impl_builder(
 ) {
     let item_struct: ItemStruct = parse_str(item_struct_str).unwrap();
     let wrapper_impl_builder: ItemImpl = parse_str(wrapper_impl_builder_str).unwrap();
-    let fields: Vec<syn::Field> = get_possible_fields(&item_struct).unwrap();
-    let wrapper_impl_builder_generated = generate_wrapper_impl_builder(&item_struct, &fields);
+    let wrapper_impl_builder_generated = testable_generate_wrapper_impl_builder(&item_struct);
     assert_eq!(
         wrapper_impl_builder_generated.to_token_string(),
         wrapper_impl_builder.to_token_string(),
@@ -61,12 +60,11 @@ pub fn check_generate_read_accessor(#[case]item_struct_str : &'static str,#[case
 pub fn check_generate_write_accessor(#[case]item_struct_str : &'static str,#[case] reader_method_str_list : Vec<&'static str>){
     let item_struct : ItemStruct = parse_str(item_struct_str).unwrap();
     let expected_reader_methods: Vec<ItemFn> = to_items(reader_method_str_list.as_slice()).unwrap(); 
-    let fields = get_possible_fields(&item_struct).unwrap();
     let ident_struct = &item_struct.ident;
     //check if same len
-    assert_eq!(expected_reader_methods.len(),fields.len());
+    assert_eq!(expected_reader_methods.len(),item_struct.fields.len());
     
-    let generated_reader_methods : Vec<ItemFn> = fields.iter().enumerate().map(|(index,field)|{
+    let generated_reader_methods : Vec<ItemFn> = item_struct.fields.iter().enumerate().map(|(index,field)|{
         testable_generate_write_accessor(field, index,ident_struct)
     }).collect();
     //check each item
@@ -84,7 +82,7 @@ pub fn check_generate_wrapper_impl_access(#[case]item_struct_str : &'static str,
  #[case]impl_access_str : &'static str){
     let item_struct : ItemStruct = parse_str(item_struct_str).unwrap();
     let expected_impl_access : ItemImpl = parse_str(impl_access_str).unwrap();
-    let generated_impl_access: ItemImpl = generate_wrapper_impl_access(&item_struct);
+    let generated_impl_access: ItemImpl = testable_generate_wrapper_impl_access(&item_struct);
     assert_eq!(generated_impl_access.to_token_string(),expected_impl_access.to_token_string())
 }
 
