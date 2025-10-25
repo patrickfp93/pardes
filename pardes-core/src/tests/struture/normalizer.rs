@@ -1,7 +1,7 @@
 use quote::ToTokens;
 use rstest::rstest;
 use syn::{parse_str, ItemStruct};
-use crate::*;
+use super::*;
 //use crate::samples::struture::tuple::expected::tuple_expanse::_core::TUPLE_CORE_SAMPLE;
 //use crate::samples::struture::tuple::original::TUPLE_SAMPLE;
 

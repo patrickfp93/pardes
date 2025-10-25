@@ -9,7 +9,7 @@ use syn::{ItemStruct, parse_str};
 use pretty_assertions as pa;
 
 use crate::struture::core_generators::*;
-use crate::*;
+use super::*;
 pub mod util;
 
 pub mod normalizer;

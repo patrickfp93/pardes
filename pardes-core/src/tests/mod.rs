@@ -1,3 +1,4 @@
+mod samples;
 mod struture;
 pub(crate) mod utilities {
     use syn::{parse::Parse, parse_str};
@@ -11,6 +12,9 @@ pub(crate) mod utilities {
             .collect::<Result<Vec<_>, _>>()
     }
 }
+
+use samples::struture::*;
+
 /*pub mod macro_utilities {
 
     #[macro_export]

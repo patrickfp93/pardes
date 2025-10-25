@@ -3,11 +3,11 @@ use syn::{parse_str, Ident, ItemMod, ItemStruct};
 
 use crate::struture::guard_generators::{generate_guards, testable_generate_mut_lock_ident, testable_generate_ref_lock_ident};
 use crate::tests::struture::util::ToStringItem;
-use crate::*;
+use super::*;
 
 #[rstest]
-#[case::simple_struct(crate::samples::struture::SIMPLE_STRUCT_SAMPLE,syn::parse_quote!(SimpleStructRefLock))]
-#[case::tuple(crate::samples::struture::TUPLE_SAMPLE,syn::parse_quote!(TupleRefLock))]
+#[case::simple_struct(SIMPLE_STRUCT_SAMPLE,syn::parse_quote!(SimpleStructRefLock))]
+#[case::tuple(TUPLE_SAMPLE,syn::parse_quote!(TupleRefLock))]
 pub fn check_generate_ref_lock_ident(#[case]item_struct_str: &'static str,#[case]expected_ref_locker_ident : Ident){
     let item_struct : ItemStruct = parse_str(item_struct_str).unwrap();
     let generated_ref_locker_ident = testable_generate_ref_lock_ident(&item_struct.ident);
@@ -15,8 +15,8 @@ pub fn check_generate_ref_lock_ident(#[case]item_struct_str: &'static str,#[case
 }
 
 #[rstest]
-#[case::simple_struct(crate::samples::struture::SIMPLE_STRUCT_SAMPLE,syn::parse_quote!(SimpleStructMutLock))]
-#[case::tuple(crate::samples::struture::TUPLE_SAMPLE,syn::parse_quote!(TupleMutLock))]
+#[case::simple_struct(SIMPLE_STRUCT_SAMPLE,syn::parse_quote!(SimpleStructMutLock))]
+#[case::tuple(TUPLE_SAMPLE,syn::parse_quote!(TupleMutLock))]
 pub fn check_generate_mut_lock_ident(#[case]item_struct_str: &'static str,#[case]expected_mut_locker_ident : Ident){   
 
     let item_struct : ItemStruct = parse_str(item_struct_str).unwrap();
