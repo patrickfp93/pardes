@@ -6,8 +6,11 @@ edition = "2024"
 [dependencies]
 quote = "1.0.29"
 syn = { version = "2.0.26", features = ["full"] }
-proc-macro2 = "1.0.66"
+proc-macro2 = "1.0.103"
 convert_case = "0.8.0"
 thiserror = "2.0.17"
 rstest = "0.26.1"
-seferize = "1.5.5"
+seferize = "1.5.6"
+
+[dev-dependencies]
+pretty_assertions = "1.4.1"

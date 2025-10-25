@@ -164,6 +164,7 @@ pub mod expanse {
 
     //user Edition
 
+    #[seferize::ignore]
     #[allow(unused)]
     impl SimpleStruct {
         pub fn new(field1: String, field2: i32) -> Self {

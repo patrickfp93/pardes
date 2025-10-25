@@ -1,13 +1,17 @@
+pub use expansion::*;
+
+
+#[seferize::stringify("TUPLE_EXPANSE_SAMPLE")]
+pub mod expansion{
+
 #[seferize::stringify("TUPLE_TYPE_SAMPLE")]
 pub type Tuple = tuple_expanse::Tuple;
 
+#[seferize::ignore]
 pub use tuple_expanse::*;
 
-#[allow(unused)]
-#[seferize::stringify("TUPLE_EXPANSE_SAMPLE")]
 mod tuple_expanse {
     #[seferize::ignore]
-    #[allow(unused)]
     pub use _core::*;
     #[seferize::stringify("TUPLE_CORE_MODULE_SAMPLE")]
     #[doc(hidden)]
@@ -150,7 +154,7 @@ mod tuple_expanse {
 }
 
 
-#[allow(unused)]
+#[seferize::ignore]
 impl Tuple {
     pub fn new(value: (String, i32)) -> Self {
         Self::builder(value)
@@ -159,4 +163,5 @@ impl Tuple {
     pub fn sum_five(&mut self) {
         *self.f1_mut() += 5;
     }
+}
 }

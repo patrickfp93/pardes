@@ -5,6 +5,9 @@ use rstest::rstest;
 use syn::{ItemImpl, ItemMod};
 use syn::{ItemStruct, parse_str};
 
+#[cfg(test)]
+use pretty_assertions as pa;
+
 use crate::struture::core_generators::*;
 use crate::*;
 pub mod util;
@@ -27,7 +30,7 @@ pub fn check_generate_head_type_method(
     let item_struct: ItemStruct = parse_str(item_struct_str).unwrap();
     let head_type_generated: TokenStream = generate_head_type(&item_struct);
     let head_type_sample: TokenStream = parse_str(type_str).unwrap();
-    assert_eq!(
+    pa::assert_eq!(
         head_type_generated.to_string(),
         head_type_sample.to_string()
     )
@@ -42,11 +45,11 @@ pub fn check_expantion(
     #[case] expected_expanse_str: &'static str,
 ) {
     let item_struct: ItemStruct = parse_str(item_struct_str).unwrap();
-    let head_type_generated: TokenStream = expantion(item_struct).unwrap();
+    let generate_expanse: TokenStream = expantion(item_struct).unwrap();
     let expected_expanse: ItemMod = parse_str(expected_expanse_str).unwrap();
     let expected_expanse = extract_content_from_module(&expected_expanse).unwrap();
-    assert_eq!(
-        head_type_generated.to_string(),
+    pa::assert_eq!(
+        generate_expanse.to_string(),
         expected_expanse.to_string()
     )
 }
